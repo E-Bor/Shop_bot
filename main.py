@@ -1,16 +1,13 @@
-# This is a sample Python script.
+from aiogram.utils import executor
+from create import dp
+from handlers import userhandlers
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+
+userhandlers.register_handler_users(dp)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-print(hiб Р)
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    executor.start_polling(dp,skip_updates=False)
+
+
