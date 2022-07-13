@@ -23,7 +23,7 @@ class Shop:
 
 
 # create dict "dict_attrs" witch attrs for all objects in "categories" list
-    def create_dict_attrs(self):
+    def create_dict_attrs(self) -> dict:
         dict_attrs = dict()
         for i in self.categories:
             if isinstance(self.categories[i],str):
@@ -72,10 +72,10 @@ class ShopObjects:
     """class that view shop`s sections"""
 
     def __init__(self,name,discription_object ,price):
-        self.__name = name
+        self.__name = name                                             # this reauied attributes, that can`t del
         self.__discription_object = discription_object
         self.__price = price
-        self.__link_for_next_object = list()
+        self.__links_for_next_objects = list()
         self.__link_for_previous_object = None
 
 # setters and gatters for default attributes
@@ -112,6 +112,35 @@ class ShopObjects:
         else:
             self.__price = 0
 
+    @property
+    def links_for_next_objects(self):
+        return self.__links_for_next_objects
+
+    @links_for_next_objects.setter
+    def links_for_next_objects(self, objects):
+        if isinstance(objects, ShopObjects):
+            self.__links_for_next_objects.append(objects)
+
+    @links_for_next_objects.deleter
+    def links_for_next_objects(self,objects):
+        if objects in self.__links_for_next_objects:
+            self.__links_for_next_objects.remove(objects)
+        else:
+            print("links_for_next_objects not found")
+
+    @property
+    def link_for_previous_object(self):
+        return self.__link_for_previous_object
+
+    @link_for_previous_object.setter
+    def link_for_previous_object(self, objects):
+        if isinstance(objects, ShopObjects):
+            self.__link_for_previous_object = objects
+
+    @link_for_previous_object.deleter
+    def link_for_previous_object(self):
+        self.__link_for_previous_object = None
+
 
 
 
@@ -131,6 +160,9 @@ shop1.add_del_new_position(k1,True)
 shop1.add_del_new_position(k2,True)
 shop1.add_del_new_position(k1,False)
 
+# k1.links_for_next_objects = k2
+# k1.links_for_next_objects = k2
+# print(k1.links_for_next_objects)
 # shop1.assembly_objects({'qwe  ': {'_ShopObjects__discription_object': 'asd', 'name': s'qwe', '_ShopObjects__price': 1}, 'qwe2': {'_ShopObjects__discription_object': 'asd2', 'name': 'qwe2', '_ShopObjects__price': 12}})
 shop1.categories
 
