@@ -72,17 +72,50 @@ class ShopObjects:
     """class that view shop`s sections"""
 
     def __init__(self,name,discription_object ,price):
+        self.__name = name
+        self.__discription_object = discription_object
+        self.__price = price
+        self.__link_for_next_object = list()
+        self.__link_for_previous_object = None
 
-        if isinstance(discription_object, str) and isinstance(name, str):
-            self.discription_object = discription_object
-            self.name = name
+# setters and gatters for default attributes
+    @property
+    def name(self):
+        return self.__name
 
-        if isinstance(price, int):
-            self.price = price
-
+    @name.setter
+    def name(self, name):
+        if isinstance(name, str):
+            self.__name = name
         else:
-            self.discription_object = "1"
-            self.price = 0
+            self.__name = "Default_name"
+
+    @property
+    def discription_object(self):
+        return self.__discription_object
+
+    @discription_object.setter
+    def discription_object(self,discription_object):
+        if isinstance(discription_object, str):
+            self.__discription_object = discription_object
+        else:
+            self.discription_object = "Default_discription"
+
+    @property
+    def price(self):
+        return self.__price
+
+    @price.setter
+    def price(self,price):
+        if isinstance(price, int):
+            self.__price = price
+        else:
+            self.__price = 0
+
+
+
+
+
 
 
 
