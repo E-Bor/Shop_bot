@@ -13,9 +13,14 @@ class Shop:
         self.__name = name_of_shop
         self.categories = dict()
         self.categories["name"] = name_of_shop
+        try:
+            with open(f"{name_of_shop}.json","x+") as f:        #Сюда прикрутить функцию чтения параметров из файла
+                self.read_shop_from_json()
 
-        with open(f"{name_of_shop}.json","w+") as f:
-            json.dump(self.create_dict_attrs(),f)
+        except FileExistsError:
+            with open(f"{name_of_shop}.json", "w+") as f:
+                json.dump(self.create_dict_attrs(), f)
+
 
 # create dict "dict_attrs" witch attrs for all objects in "categories" list
     def create_dict_attrs(self):
@@ -38,20 +43,27 @@ class Shop:
 
 
 # Adding new position to Json
-
     def add_del_new_position(self,object_of_shop,task=True):
         if isinstance(object_of_shop,ShopObjects):
-            with open(f"q.json","r") as f:
-                a = json.load(f)
-                self.assembly_objects(a)
+            with open(f"{self.__name}.json","r") as f:
+                self.assembly_objects(json.load(f))
                 if task:
                     self.categories[object_of_shop.name] = object_of_shop
                 if not task:
                     self.categories.pop(object_of_shop.name,"Object not found")
-            with open(f"q.json", "w") as f:
+            with open(f"{self.__name}.json", "w") as f:
                 json.dump(self.create_dict_attrs(), f)
         else:
             print(f"ShopObjects hasn`t '{object_of_shop}', with 'name': {object_of_shop.name}")
+
+# functions for read and load Shop object with all attributes from/to json
+    def read_shop_from_json(self):
+        with open(f"{self.__name}.json", "r") as f:
+            self.assembly_objects(json.load(f))
+
+    def load_shop_to_json(self):
+        with open(f"{self.__name}.json", "w+") as f:
+            json.dump(self.create_dict_attrs(), f)
 
 
 
@@ -72,8 +84,7 @@ class ShopObjects:
             self.discription_object = "1"
             self.price = 0
 
-class WorkWithJSON:
-    pass
+
 
 
 shop1 = Shop("q")
