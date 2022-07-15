@@ -1,3 +1,4 @@
+# import datacontroller
 import os.path
 import json
 import logging
@@ -6,7 +7,7 @@ import shop as shop
 
 logging.basicConfig(
     level=logging.INFO,
-    filename = os.path.abspath('ShoLogs.log'),
+    filename = os.path.abspath('ShopLogs.log'),
     filemode='w',
     format = "[%(asctime)s] %(levelname)s -- FILE: %(filename)s -- |FUNC: %(funcName)s LINE: %(lineno)d| \
 - MSG: '%(message)s'",
@@ -32,7 +33,7 @@ class Shop:
         else:
             with open(f"{name_of_shop}.json", "w+") as f:
                 logger.info(f"file with name {name_of_shop} not found, but new was created with statdart properties")
-                json.dump(self.create_dict_attrs(), f)
+                json.dump(self.create_dict_attrs(), f,indent=4)
 
 
 
@@ -68,10 +69,12 @@ class Shop:
                     self.categories[object_of_shop.name] = object_of_shop
                     logger.info(f"object {object_of_shop.name} added")
                 if not task:
-                    self.categories.pop(object_of_shop.name,"Object not found")
-                    logger.info(f"object {object_of_shop.name} removed")
+                    if object_of_shop.name not in self.categories: logger.warning(f"object {object_of_shop.name} not found")
+                    else: logger.info(f"object {object_of_shop.name} removed")
+                    self.categories.pop(object_of_shop.name, "Object not found")
+
             with open(f"{self.__name}.json", "w") as f:
-                json.dump(self.create_dict_attrs(), f)
+                json.dump(self.create_dict_attrs(), f,indent=4)
                 logger.info("Changes wrote to json")
         else:
             logger.warning(f"ShopObjects hasn`t '{object_of_shop}', with 'name': {object_of_shop.name}")
@@ -139,7 +142,7 @@ class ShopObjects:
 
     @links_for_next_objects.setter
     def links_for_next_objects(self, objects):
-        if isinstance(objects, ShopObjects):
+        if isinstance(objects, (ShopObjects,DataContainer)):
             self.__links_for_next_objects.append(objects)
 
     @links_for_next_objects.deleter
@@ -163,6 +166,32 @@ class ShopObjects:
         self.__link_for_previous_object = None
 
 
+class DataContainer:
+    """class that need to control file items in the shop"""
+    def __init__(self,file,name):
+        self.__names = list()
+        self.__link_for_previous_object = None
+
+    @property
+    def link_for_previous_object(self):
+        return self.__link_for_previous_object
+
+    @link_for_previous_object.setter
+    def link_for_previous_object(self, objects):
+        if isinstance(objects,ShopObjects):
+            self.__link_for_previous_object = objects
+
+    @link_for_previous_object.deleter
+    def link_for_previous_object(self):
+        logger.warning("property 'link_for_previous_object' cant be removed")
+
+# request data from datacontroller (class that work with database). Using __names.index(element)
+    def request_data_controller(self,index):
+        pass
+
+# request to change data from datacontroller
+    def add_del_file_from_data_controller(self,index):
+        pass
 
 
 
@@ -175,10 +204,12 @@ k1 = ShopObjects("qwe","asd",1)
 k2 = ShopObjects("qwe2","asd2",12)
 
 # shop1.add_del_new_position(k2,True)
-shop1.categories[k1.name] = k1
-shop1.create_dict_attrs()
-# shop1.add_del_new_position(k1,True)
+
+# shop1.create_dict_attrs()
+shop1.add_del_new_position(k1,True)
 # shop1.add_del_new_position(k2,True)
+shop1.add_del_new_position(k1,False)
+shop1.add_del_new_position(k1,False)
 shop1.add_del_new_position(k2,False)
 
 # k1.links_for_next_objects = k2
