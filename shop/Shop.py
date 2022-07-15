@@ -1,8 +1,18 @@
-import os
+import os.path
 import json
+import logging
 
 import shop as shop
 
+logging.basicConfig(
+    level=logging.INFO,
+    filename = os.path.abspath('ShoLogs.log'),
+    filemode='w',
+    format = "[%(asctime)s] %(levelname)s -- FILE: %(filename)s -- |FUNC: %(funcName)s LINE: %(lineno)d| \
+- MSG: '%(message)s'",
+    datefmt='%H:%M:%S',
+    )
+logger = logging.getLogger("ShopLoger")
 
 class Shop:
     """class for creating shop
@@ -13,33 +23,40 @@ class Shop:
         self.__name = name_of_shop
         self.categories = dict()
         self.categories["name"] = name_of_shop
-        try:
-            with open(f"{name_of_shop}.json","x+") as f:        #Сюда прикрутить функцию чтения параметров из файла
+        logger.info("init shop object")
+        if os.path.isfile(os.path.abspath(f'{name_of_shop}.json')):
+            logger.info(f"file With Shop Data found: {os.path.abspath(f'{name_of_shop}.json')}")
+            with open(f"{name_of_shop}.json", "r") as f:
+                logger.info("Opening Json")
                 self.read_shop_from_json()
-
-        except FileExistsError:
+        else:
             with open(f"{name_of_shop}.json", "w+") as f:
+                logger.info(f"file with name {name_of_shop} not found, but new was created with statdart properties")
                 json.dump(self.create_dict_attrs(), f)
+
 
 
 # create dict "dict_attrs" witch attrs for all objects in "categories" list
     def create_dict_attrs(self) -> dict:
+        logger.info("call function to create dict_attrs")
         dict_attrs = dict()
         for i in self.categories:
             if isinstance(self.categories[i],str):
                 continue
             dict_attrs[i] = self.categories[i].__dict__
-        print(dict_attrs)
+        logger.info(f"attributes created {dict_attrs}")
         return dict_attrs
 
 # method for creating objects in categories list with dict. dict_attrs must have all information about
 # objects`s attributes
     def assembly_objects(self,dict_attrs):
+        logger.info("call function to assembly object")
         for i in dict_attrs:
             if i == "name": continue
             a = ShopObjects("","",0)
             a.__dict__ = dict_attrs[i]
             self.categories[i] = a
+            logger.info(f"object {a} assemblied with name {a.name}")
 
 
 # Adding new position to Json
@@ -49,12 +66,15 @@ class Shop:
                 self.assembly_objects(json.load(f))
                 if task:
                     self.categories[object_of_shop.name] = object_of_shop
+                    logger.info(f"object {object_of_shop.name} added")
                 if not task:
                     self.categories.pop(object_of_shop.name,"Object not found")
+                    logger.info(f"object {object_of_shop.name} removed")
             with open(f"{self.__name}.json", "w") as f:
                 json.dump(self.create_dict_attrs(), f)
+                logger.info("Changes wrote to json")
         else:
-            print(f"ShopObjects hasn`t '{object_of_shop}', with 'name': {object_of_shop.name}")
+            logger.warning(f"ShopObjects hasn`t '{object_of_shop}', with 'name': {object_of_shop.name}")
 
 # functions for read and load Shop object with all attributes from/to json
     def read_shop_from_json(self):
@@ -77,6 +97,7 @@ class ShopObjects:
         self.__price = price
         self.__links_for_next_objects = list()
         self.__link_for_previous_object = None
+
 
 # setters and gatters for default attributes
     @property
@@ -126,7 +147,7 @@ class ShopObjects:
         if objects in self.__links_for_next_objects:
             self.__links_for_next_objects.remove(objects)
         else:
-            print("links_for_next_objects not found")
+            logger.warning("links_for_next_objects not found")
 
     @property
     def link_for_previous_object(self):
@@ -156,9 +177,9 @@ k2 = ShopObjects("qwe2","asd2",12)
 # shop1.add_del_new_position(k2,True)
 shop1.categories[k1.name] = k1
 shop1.create_dict_attrs()
-shop1.add_del_new_position(k1,True)
-shop1.add_del_new_position(k2,True)
-shop1.add_del_new_position(k1,False)
+# shop1.add_del_new_position(k1,True)
+# shop1.add_del_new_position(k2,True)
+shop1.add_del_new_position(k2,False)
 
 # k1.links_for_next_objects = k2
 # k1.links_for_next_objects = k2
