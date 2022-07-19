@@ -36,7 +36,6 @@ class Shop:
                 json.dump(self.create_dict_attrs(), f,indent=4)
 
 
-
 # create dict "dict_attrs" witch attrs for all objects in "categories" list
     def create_dict_attrs(self) -> dict:
         logger.info("call function to create dict_attrs")
