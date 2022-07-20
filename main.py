@@ -2,7 +2,7 @@ from aiogram.utils import executor
 from create import dp
 from handlers import userhandlers
 import logging
-logger = logging.getLogger("ShopLoger")
+from bot_logger.BotLogger import logger
 
 userhandlers.register_handler_users(dp)
 

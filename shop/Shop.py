@@ -2,18 +2,8 @@
 import os.path
 import json
 import logging
-
-import shop as shop
-
-logging.basicConfig(
-    level=logging.INFO,
-    filename = os.path.abspath('ShopLogs.log'),
-    filemode='w',
-    format = "[%(asctime)s] %(levelname)s -- FILE: %(filename)s -- |FUNC: %(funcName)s LINE: %(lineno)d| \
-- MSG: '%(message)s'",
-    datefmt='%H:%M:%S',
-    )
-logger = logging.getLogger("ShopLoger")
+from bot_logger.BotLogger import logger
+""""main shop logic file"""
 
 class Shop:
     """class for creating shop
@@ -145,7 +135,7 @@ class ShopObjects:
             self.__links_for_next_objects.append(objects)
 
     @links_for_next_objects.deleter
-    def links_for_next_objects(self,objects):
+    def links_for_next_objects(self, objects):
         if objects in self.__links_for_next_objects:
             self.__links_for_next_objects.remove(objects)
         else:
