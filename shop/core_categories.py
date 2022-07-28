@@ -1,5 +1,7 @@
 from bot_logger.BotLogger import logger
 import json
+import os
+import platform
 
 class Categories:
     """Класс который нужен для создания обьекта переключателя категорий, где вложенный список загружается из
@@ -11,7 +13,8 @@ class Categories:
 
     # read categories from json
     def read_categories_from_json(self, name):
-        with open(f"{name}.json","r") as f:
+        path = os.path.dirname(__file__)+f"\\{name}.json" if platform.system() == "Windows" else os.path.dirname(__file__)+f"/{name}.json"
+        with open(path, "r") as f:
             return json.load(f)
 
     # search item with name 'search' in dict
@@ -41,7 +44,7 @@ class Categories:
         return categories
 
 
-cat = Categories("q")
-print(cat.view("members"))
+category_object = Categories("q")
+
 
 
