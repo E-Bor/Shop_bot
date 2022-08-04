@@ -43,6 +43,15 @@ class Categories:
             return list(self.view_category(category).keys())
         return categories
 
+    def check_type_category(self,category):
+        # print(category.data)
+        # print(self.view_category(category.data))
+        if self.view_category(category.data) is None:
+            logger.info("check none")
+            return True
+        else:
+            return False
+
 
 category_object = Categories("q")
 
