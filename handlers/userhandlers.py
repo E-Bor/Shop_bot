@@ -68,15 +68,12 @@ async def control_categories(callback: types.CallbackQuery, state):
     logger.info("Function to update categories is run")
     await callback.message.delete()
     cat = category_object.view(callback.data)
-
     update_fsm = await state.get_data()
     print(update_fsm)
-
     # Not end categories
     if isinstance(cat,list):
         markup = create_inline_markup(cat)
         await callback.message.answer("Выбери категорию",reply_markup=markup)
-
     # end categories
     if isinstance(cat, str):
         # await BuyState.item_for_buying.set()
@@ -90,11 +87,12 @@ async def control_categories(callback: types.CallbackQuery, state):
     await callback.answer()
 
 
+# function for replying markup and payments
 async def bye_item(message: types.Message, state):
     await message.answer("bye")
     print(message.chat.id)
     await message.answer()
-
+    # сделать регистрацию хендлеров для оплаты
 
 
 
