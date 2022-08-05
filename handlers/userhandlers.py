@@ -88,10 +88,20 @@ async def control_categories(callback: types.CallbackQuery, state):
 
 
 # function for replying markup and payments
-async def bye_item(message: types.Message, state):
-    await message.answer("bye")
-    print(message.chat.id)
-    await message.answer()
+async def bye_item(callback: types.CallbackQuery, state):
+    await callback.answer("bye")
+    end_fsm = await state.get_data()
+    a = end_fsm["current_state"].copy()
+    a.append(callback.data)
+    await state.update_data(current_state=a)
+
+
+
+    print(callback)
+    print(callback.message.chat.id)
+    update_fsm = await state.get_data()
+    print("------",update_fsm)
+    await callback.answer()
     # сделать регистрацию хендлеров для оплаты
 
 

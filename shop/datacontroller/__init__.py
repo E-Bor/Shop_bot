@@ -1,1 +1,2 @@
-from .datacontroller import DatabaseControll
+
+from .datacontroller import database
