@@ -10,6 +10,6 @@ userhandlers.register_handler_users(dp)
 if __name__ == '__main__':
     logger.info("hi")
 
-    executor.start_polling(dp,skip_updates=False)
+    executor.start_polling(dp,skip_updates=True)
 
 

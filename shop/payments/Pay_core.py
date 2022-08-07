@@ -3,10 +3,11 @@ from unicodedata import category
 from shop.Datacontroller import database
 
 # function for getting settings for payments - send_invoice
-def get_data_for_payment(category: str) -> dict:
+def get_data_for_payment(category: list) -> dict:
+    category_str = "|".join(category)
     settings = dict()
-    data = database.read_data(category).copy()[0]
-    print(data)
+    data = database.read_data(category_str).copy()[0]
+    # print(data)
     settings["name"] = category[-1]
     settings["cost"] = data[2]
     settings["preview_path"] = data[-1]

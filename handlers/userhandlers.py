@@ -1,18 +1,20 @@
 from aiogram import Bot, types, Dispatcher
 from bot_logger.BotLogger import logger
-from create import dp,bot
-from handlers import create_inline_markup,create_markup
+from create import dp, bot
+from handlers import create_inline_markup, create_markup
 from shop import category_object
+from shop.payments import get_data_for_payment, config_payments
 from state import UserState
+from aiogram.types.message import ContentTypes
 
-
+# PAYMENTS_PROVIDER_TOKEN = '401643678:TEST:14d6674e-0da7-47cb-8cef-1058b3879a4c'
 """file for userhandlers"""
 
 # PRICE = types.LabeledPrice(label='Вы купили тестовый товар', amount=4200)
-# PAYMENTS_PROVIDER_TOKEN = "401643678:TEST:f9339c8d-4aae-4d45-b06a-93ebdf83b1f6"
+
 # TIME_MACHINE_IMAGE_URL = "http://erkelzaar.tsudao.com/models/perrotta/TIME_MACHINE.jpg"
 # from handlers import MESSAGES
-
+print(config_payments.PAYMENTS_PROVIDER_TOKEN)
 Handlers_list = {
     1 : "start",
     2 : "Помощь"
@@ -94,17 +96,47 @@ async def bye_item(callback: types.CallbackQuery, state):
     a = end_fsm["current_state"].copy()
     a.append(callback.data)
     await state.update_data(current_state=a)
+    category = await state.get_data()
+    print(category["current_state"])
+    dataoffile = get_data_for_payment(category["current_state"])
+    # await callback.message.answer_document(dataoffile["preview_path"])
+    #prices for payments
+    prices = [
+        types.LabeledPrice(label=dataoffile["name"],\
+                           amount=dataoffile["cost"]),
+    ]
 
+    await bot.send_invoice(callback.message.chat.id, title=config_payments.TITLE,
+                           description=config_payments.DESCRIPTION,
+                           provider_token=config_payments.PAYMENTS_PROVIDER_TOKEN,
+                           currency='rub',
+                           photo_url='',  # Здесь должна быть картинка
+                           photo_height=512,  # !=0/None or picture won't be shown
+                           photo_width=512,
+                           photo_size=512,
+                           is_flexible=False,
+                           # True If you need to set up Shipping Fee, позволяет сконфигурировать чтото
+                           prices=prices,
+                           start_parameter='time-machine-example',
+                           payload='HAPPY FRIDAYS COUPON')
 
-
-    print(callback)
-    print(callback.message.chat.id)
-    update_fsm = await state.get_data()
-    print("------",update_fsm)
     await callback.answer()
-    # сделать регистрацию хендлеров для оплаты
 
 
+# handler for update pay status
+async def checkout(pre_checkout_query: types.PreCheckoutQuery):
+    print("pre_checkout_query")
+    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True,
+                                        error_message=config_payments.ERROR_MESSAGE)
+
+
+# handler for success pay status and reply file
+async def got_payment(message: types.Message, state):
+    print("got_payment")
+    await bot.send_message(message.chat.id,
+                           config_payments.PAYED_SUCCESS,
+                           parse_mode='Markdown')
+    await state.finish()
 
 
 
@@ -121,5 +153,7 @@ def register_handler_users(dp : Dispatcher):
     dp.register_callback_query_handler(bye_item, category_object.check_type_category,
                                        state=UserState.current_state)
     # написать хэндлер который ловит категории
+    dp.register_pre_checkout_query_handler(checkout,lambda query: True,state=UserState.current_state)
+    dp.register_message_handler(got_payment, content_types=ContentTypes.SUCCESSFUL_PAYMENT, state=UserState.current_state)
     dp.register_callback_query_handler(control_categories, state=UserState.current_state)
 
