@@ -7,14 +7,10 @@ from shop.payments import get_data_for_payment, config_payments
 from state import UserState
 from aiogram.types.message import ContentTypes
 
-# PAYMENTS_PROVIDER_TOKEN = '401643678:TEST:14d6674e-0da7-47cb-8cef-1058b3879a4c'
+
 """file for userhandlers"""
 
-# PRICE = types.LabeledPrice(label='Вы купили тестовый товар', amount=4200)
 
-# TIME_MACHINE_IMAGE_URL = "http://erkelzaar.tsudao.com/models/perrotta/TIME_MACHINE.jpg"
-# from handlers import MESSAGES
-print(config_payments.PAYMENTS_PROVIDER_TOKEN)
 Handlers_list = {
     1 : "start",
     2 : "Помощь"
@@ -97,9 +93,10 @@ async def bye_item(callback: types.CallbackQuery, state):
     a.append(callback.data)
     await state.update_data(current_state=a)
     category = await state.get_data()
-    print(category["current_state"])
+    logger.info("called function to pay")
     dataoffile = get_data_for_payment(category["current_state"])
-    # await callback.message.answer_document(dataoffile["preview_path"])
+    with open (dataoffile["preview_path"], "rb") as f:
+        await callback.message.answer_document(dataoffile["preview_path"])
     #prices for payments
     prices = [
         types.LabeledPrice(label=dataoffile["name"],\
