@@ -51,7 +51,7 @@ async def back_to_category(message: types.Message, state):
     logger.info("user go back in categories")
     await message.delete()
     update_fsm = await state.get_data()
-    print(update_fsm)
+    # print(update_fsm)
     a = update_fsm["current_state"].copy()
     a.pop(-1)
     await state.reset_data()
@@ -78,7 +78,7 @@ async def control_categories(callback: types.CallbackQuery, state):
     # print(cat)
     # Not end categories
     if isinstance(cat, list):
-        print(cat)
+        # print(cat)
         markup = create_inline_markup(cat)
         await callback.message.answer("Выбери категорию",reply_markup=markup)
     # end categories
@@ -157,7 +157,7 @@ def register_handler_users(dp : Dispatcher):
 
     dp.register_message_handler(command_start, commands=["start"])
     dp.register_message_handler(command_help, lambda message: "Помощь" in message.text)
-    dp.register_message_handler(start_shopping,lambda message: "Начать" in message.text)
+    dp.register_message_handler(start_shopping, lambda message: "Начать" in message.text)
     dp.register_message_handler(back_to_category, lambda message: "Назад" in message.text,
                                 state=UserState.current_state,)
     dp.register_message_handler(stop_shopping, lambda message: "Закончить" in message.text,
@@ -165,7 +165,7 @@ def register_handler_users(dp : Dispatcher):
     # dp.register_callback_query_handler(bye_item,lambda message: message.data == "Pay" ,
     #                                    state=UserState.current_state)
     # написать хэндлер который ловит категории
-    dp.register_pre_checkout_query_handler(checkout,lambda query: True,state=UserState.current_state)
+    dp.register_pre_checkout_query_handler(checkout, lambda query: True, state=UserState.current_state)
     dp.register_message_handler(got_payment, content_types=ContentTypes.SUCCESSFUL_PAYMENT, state=UserState.current_state)
     dp.register_callback_query_handler(control_categories, state=UserState.current_state)
 
