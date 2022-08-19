@@ -6,6 +6,8 @@ from shop.Datacontroller import database
 def get_data_for_payment(category: list) -> dict:
     category_str = "|".join(category)
     settings = dict()
+    # print(category_str)
+    # print(database.read_data(category_str).copy())
     data = database.read_data(category_str).copy()[0]
     # print(data)
     settings["name"] = category[-1]

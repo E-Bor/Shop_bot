@@ -3,57 +3,81 @@ import json
 import os
 import platform
 
-class Categories:
-    """Класс который нужен для создания обьекта переключателя категорий, где вложенный список загружается из
-    json файла"""
 
-    def __init__(self,name):
+class Categories:
+    """Class that needed to switch categories from nested dictionary. Nested dictionary load from json file"""
+
+    def __init__(self, name):
         self.dict = self.read_categories_from_json(name)
         logger.info("loaded dict with categories")
 
     # read categories from json
     def read_categories_from_json(self, name):
-        path = os.path.dirname(__file__)+f"\\{name}.json" if platform.system() == "Windows" else os.path.dirname(__file__)+f"/{name}.json"
+        path = os.path.dirname(__file__)+f"\\{name}.json" if platform.system() == "Windows" else os.path.dirname(
+            __file__)+f"/{name}.json"
         with open(path, "r") as f:
             return json.load(f)
 
     # search item with name 'search' in dict
-    def search_categories(self,dict_for_search,search):
-        logger.info("Called search element in dictionary")
-        if search in dict_for_search.keys():
-            return dict_for_search[search]
-        for i in dict_for_search.values():
-            if isinstance(i,dict):
-                new = self.search_categories(i, search)
-                if new != None:
-                    return new
+    def view(self, category=[]):
+        dic = self.dict.copy()
+        cat = category
+        for i in cat:
+            if dic[i] == "Pay":
+                return dic
+            dic = dic[i]
 
-    # view all items in categories
-    def view_category(self,key_for_view="start"):
-        if key_for_view == "start":
-           return list(self.dict.keys())
-        else:
-            return self.search_categories(self.dict, key_for_view)
+        return list(dic.keys())
 
-    # view only current items in categories
-    def view(self,category = "start"):
-        logger.info("Shown categories")
-        categories = self.view_category(category)
-        if isinstance(categories,dict):
-            return list(self.view_category(category).keys())
-        return categories
+    # add category
+    def add_category(self, new_cat,  category_list=[]):
+        dictionary = self.dict
+        logger.info("called function to add category")
+        if len(category_list) == 0:
+            dictionary[new_cat] = {}
+        for j, i in enumerate(category_list):
+            if j == len(category_list)-1:
+                dictionary[i] = {new_cat: {}}
+            dictionary = dictionary[i]
+        return dictionary
 
-    def check_type_category(self,category):
-        # print(category.data)
-        # print(self.view_category(category.data))
-        if self.view_category(category.data) is None:
-            logger.info("check none")
-            return True
-        else:
-            return False
+    # add item for sale
+    def add_item(self, new_item, category_list=[]):
+        logger.info("called function to add item")
+        dictionary = self.dict
+        for j, i in enumerate(category_list):
+            if j == len(category_list)-1:
+                dictionary[i].update({new_item: "Pay"})
+            dictionary = dictionary[i]
+        return dictionary
+
+    # delete item/category
+    def del_partition(self, category_list=[]):
+        logger.info("called function to del partition")
+        dictionary = self.dict
+        for j, i in enumerate(category_list):
+            if j == len(category_list)-1:
+                del dictionary[i]
+                return dictionary
+            dictionary = dictionary[i]
+
+    # write changes to json
+    def apply_changes(self, name):
+        logger.info("changes was applied!")
+        path = os.path.dirname(__file__) + f"\\{name}.json" if platform.system() == "Windows" else os.path.dirname(
+            __file__) + f"/{name}.json"
+        with open(path, "w") as f:
+            json.dump(self.dict, f)
 
 
 category_object = Categories("q")
+print(category_object.dict)
+# print(category_object.add_category("1", ["1 курс","Математика"]))
+# print(category_object.add_item("kontrol`ndaya", ["1 курс","Математика"]))
+# print(category_object.view_category("Математика"))
+category_object.del_partition(["1 курс"])
+# category_object.apply_changes("q")
+print(category_object.dict)
 
 
 
