@@ -97,7 +97,7 @@ async def control_categories(callback: types.CallbackQuery, state):
 
 # function for replying markup and payments
 async def bye_item(callback: types.CallbackQuery, state):
-    await callback.answer("bye")
+    # await callback.answer("bye")
     # end_fsm = await state.get_data()
     # a = end_fsm["current_state"].copy()
     # a.append(callback.data)
