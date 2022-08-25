@@ -112,9 +112,11 @@ def create_new_file_in_database(dictionary: dict):
     cost = dictionary["new_files_data"][1]+"00"
     dictionary["directory"].append(file_name)
     category = "|".join(dictionary["directory"])
-    file = f"{file_path}{dictionary['files_name']}"
+    # file = f"{file_path}{dictionary['files_name']}"
+    file = f"{dictionary['files_name']}"
     telegram_id_file = dictionary["files"]["file_id"]
-    pre_view = f"{pre_view_path}{dictionary['pre_view_name']}"
+    pre_view = f"{dictionary['pre_view_name']}"
+    # pre_view = f"{pre_view_path}{dictionary['pre_view_name']}"
     database.add_position(file_name, category, cost, file, telegram_id_file, pre_view)
 
 
