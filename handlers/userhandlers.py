@@ -145,8 +145,11 @@ async def got_payment(message: types.Message, state):
                            parse_mode='Markdown')
     category = await state.get_data()
     dataoffile = get_data_for_payment(category["current_state"])
-    with open(dataoffile["file_path"], "rb") as f:                  # open callable file and send file
-        await message.answer_document(f)
+    # print(dataoffile["file_path"])
+    for i in dataoffile["file_path"]:
+        # print(i)
+        with open(i, "rb") as f:                  # open callable file and send file
+            await message.answer_document(f)
 
     await state.finish()
 

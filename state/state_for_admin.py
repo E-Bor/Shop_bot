@@ -7,6 +7,7 @@ class CategoryState(StatesGroup):
     name = State()
     path = State()
 
+
 class ItemState(StatesGroup):
     new_files_data = State()
     directory = State()
@@ -15,5 +16,8 @@ class ItemState(StatesGroup):
     pre_view = State()
     pre_view_name = State()
 
+
+class Items(StatesGroup):
+    file = State()
 
 
