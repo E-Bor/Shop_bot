@@ -6,6 +6,7 @@ from shop import category_object
 from shop.payments import get_data_for_payment, config_payments
 from state import UserState
 from aiogram.types.message import ContentTypes
+from shop.Datacontroller import database
 
 
 """file for userhandlers"""
@@ -21,6 +22,7 @@ async def command_start(message: types.Message):
     await bot.send_message(message.from_user.id, """
     Добро пожаловать в магазин!
     """,reply_markup=create_markup())
+    database.register_new_user(str(message.from_user.id))
 
 
 #команда help
@@ -132,25 +134,29 @@ async def bye_item(callback: types.CallbackQuery, state):
 
 # handler for update pay status
 async def checkout(pre_checkout_query: types.PreCheckoutQuery):
-    print("pre_checkout_query")
+    # print("pre_checkout_query")
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True,
                                         error_message=config_payments.ERROR_MESSAGE)
 
 
 # handler for success pay status and reply file
 async def got_payment(message: types.Message, state):
-    print("got_payment")
+    # print("got_payment")
     await bot.send_message(message.chat.id,
                            config_payments.PAYED_SUCCESS,
                            parse_mode='Markdown')
     category = await state.get_data()
     dataoffile = get_data_for_payment(category["current_state"])
     # print(dataoffile["file_path"])
-    for i in dataoffile["file_path"]:
-        # print(i)
-        with open(i, "rb") as f:                  # open callable file and send file
+    if isinstance(dataoffile["file_path"], list):
+        for i in dataoffile["file_path"]:
+            # print(i)
+            with open(i, "rb") as f:                  # open callable file and send file
+                await message.answer_document(f)
+    if isinstance(dataoffile["file_path"], str):
+        with open(dataoffile["file_path"], "rb") as f:
             await message.answer_document(f)
-
+    database.register_new_buy("|".join(category["current_state"]))
     await state.finish()
 
 

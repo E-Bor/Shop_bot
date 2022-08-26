@@ -1,21 +1,27 @@
 import sqlite3
 import os
+import datetime
 
 from unicodedata import category
 
 from bot_logger.BotLogger import logger
 
-class DatabaseControll:
-    def __init__(self,db_name:str):
-        self.db_name = db_name
-        self.path = os.path.dirname(os.path.abspath(__file__))+"\\"+ self.db_name
 
+class DatabaseControll:
+    """class that need for working with database"""
+
+    def __init__(self, db_name: str):
+        self.db_name = db_name
+        self.path = os.path.dirname(os.path.abspath(__file__))+"\\" + self.db_name
+
+# create connection with db that named db_name
     def create_connection(self):
         try:
             sqlite_connection = sqlite3.connect(str(self.path))
             cursor = sqlite_connection.cursor()
             logger.info("База данных создана и успешно подключена к SQLite")
-            return cursor,sqlite_connection
+            return cursor, sqlite_connection
+
         except sqlite3.Error as error:
             logger.info(f"Ошибка при подключении к sqlite {error}")
 
@@ -24,7 +30,7 @@ class DatabaseControll:
             sqlite_connection.close()
             logger.info("Соединение с SQLite закрыто")
 
-    def read_data(self,category):
+    def read_data(self, category):
         logger.info(f"Calles function to read data from db with category: '{category}'")
         cur,con = self.create_connection()
         sql_request = "select * from files where category=:category"
@@ -57,10 +63,43 @@ class DatabaseControll:
     def delete_position(self, category):
         logger.info(f"Calles function to delete data from db with category: '{category}'")
         cur, con = self.create_connection()
-        if len(self.read_data(category)) != 0:
-            sql_request = "DELETE FROM files  where category= ?"
-            cur.execute(sql_request, (category))
-            con.commit()
+        # if len(self.read_data(category)) != 0:
+        # sql_request = "DELETE FROM files  where category= ?"
+        sql_request = "DELETE FROM files  where category like ?"
+        # print(category, "cat")
+        cur.execute(sql_request, ("{}%".format(category),))
+        con.commit()
+
+    def register_new_user(self, user_id):
+        logger.info("registrated new user")
+        cur, con = self.create_connection()
+        print(datetime.date.today())
+        sql_request = "insert into stats_user values (?,?)"
+        cur.execute(sql_request, (user_id, datetime.date.today()))
+        con.commit()
+
+    def check_new_users(self, start, stop):
+        logger.info(f"check new users for the period: {start} --- {stop}")
+        cur, con = self.create_connection()
+        sql_request = "SELECT COUNT(*) FROM stats_user WHERE `reg_time` >= ? and `reg_time` <= ?"
+        amount = cur.execute(sql_request, (str(start), str(stop))).fetchone()
+        return amount[0]
+
+    def register_new_buy(self, cat):
+        logger.info("registrated new buy")
+        cur, con = self.create_connection()
+        sql_request = "insert into stats_shoping values (?,?)"
+        cur.execute(sql_request, (cat, datetime.date.today()))
+        con.commit()
+
+    def check_purchases(self, cat, start, stop):
+        logger.info(f"check new purchases for the period: {start} --- {stop}")
+        cur, con = self.create_connection()
+        sql_request = "SELECT COUNT(*) FROM stats_shoping WHERE category LIKE ? and `date` >= ? and `date` <= ?"
+        amount = cur.execute(sql_request, ("{}%".format(cat),start,stop)).fetchone()
+        return amount[0]
 
 
 database = DatabaseControll("filesdata.db")
+
+# date format "2022-08-22"

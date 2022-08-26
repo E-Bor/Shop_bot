@@ -11,7 +11,9 @@ def get_data_for_payment(category: list) -> dict:
     # print(database.read_data(category_str).copy())
     data = database.read_data(category_str).copy()
     if len(data) == 1:
+        # print(data,"old")
         data = database.read_data(category_str).copy()[0]
+        # print(data, "new")
         settings["name"] = category[-1]
         settings["cost"] = data[2]
         settings["preview_path"] = pre_view_path+data[-1]
@@ -19,6 +21,7 @@ def get_data_for_payment(category: list) -> dict:
         settings["file_path"] = file_path+data[3]
     else:
         for i, j in enumerate(data):
+
             if i == 0:
                 settings["name"] = category[-1]
                 settings["cost"] = j[2]
@@ -27,6 +30,7 @@ def get_data_for_payment(category: list) -> dict:
                 settings["file_path"] = [file_path + j[3]]
             else:
                 settings["file_path"].append(file_path + j[3])
+    # print(settings, "settings")
     return settings
 
 
