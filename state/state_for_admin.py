@@ -21,3 +21,5 @@ class Items(StatesGroup):
     file = State()
 
 
+class CheckStat(StatesGroup):
+    category = State()

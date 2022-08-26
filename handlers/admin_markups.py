@@ -14,7 +14,7 @@ def create_admin_inline_markup(titles: list,back=None):
 def create_admin_markup():
     mk = ReplyKeyboardMarkup(resize_keyboard=True)
     mk.add(KeyboardButton("Добавить товар"), KeyboardButton("Добавить категорию"), KeyboardButton(
-        "Удалить"), KeyboardButton("Применить")).row(
+        "Удалить"), KeyboardButton("Статистика")).row(
         KeyboardButton("Закончить"), KeyboardButton("Начать"),KeyboardButton("Назад"),)
     return mk
 

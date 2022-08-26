@@ -8,9 +8,10 @@ from create import dp, bot
 from handlers import create_admin_inline_markup, create_admin_markup, create_inline_markup
 from shop import category_object
 from shop.payments import get_data_for_payment, config_payments
-from state import UserState, CategoryState, ItemState, Items
+from state import UserState, CategoryState, ItemState, Items, CheckStat
 from aiogram.types.message import ContentTypes
 from .userhandlers import back_to_category
+import re
 
 ID = None
 
@@ -178,10 +179,42 @@ async def add_file_to_file_cach (file: types.Message, state: FSMContext):
     await file.answer("файл успешно добавлен")
 
 
-# applied changes
-# async def apply(message: types.Message, state: FSMContext):
-    # category_object.apply_changes("q")
-#     await message.answer("Изменения успешно применены!")
+# get stat
+async def get_stat(message: types.Message, state: FSMContext):
+    await message.answer("Введите промежуток дат за который вы хотите получить статистику через пробел")
+    old_state = await state.get_data()
+    a = old_state["current_state"].copy()
+    await state.finish()
+    await CheckStat.category.set()
+    new_state = Dispatcher.get_current().current_state()
+    await new_state.update_data(category=a)
+
+
+async def get_state_with_date(message: types.Message, state: FSMContext):
+    old_state = await state.get_data()
+    date = list()
+    for i in message.text.split():
+        if re.fullmatch(r'20\d\d-[0-1][1-9]-[0-3]\d', i):
+            date.append(i)
+        if len(date) == 2:
+            break
+    if len(date) == 2:
+        await message.answer(f"""В данном разделе за период |({date[0]}) - ({date[1]})|
+Cовершено покупок: | {database.check_purchases("|".join(old_state["category"]), date[0], date[1])} |
+Новых пользователей за этот период: | {database.check_new_users(date[0], date[1])} |""")
+        a = old_state["category"].copy()
+        await state.finish()
+        await UserState.current_state.set()
+        new_state = Dispatcher.get_current().current_state()
+        await new_state.update_data(current_state=a)
+        await bot.send_message(message.from_user.id,
+                               'Для продолжения нажмите кнопку "назад" или вернитесь к выбору категории')
+
+    else:
+        await message.answer("Дата введена не верно")
+
+
+
 
 
 # registers messages
@@ -201,9 +234,10 @@ def register_handler_admins(dp : Dispatcher):
     dp.register_message_handler(add_file, state=ItemState.new_files_data)
     dp.register_message_handler(load_file, state=ItemState.file, content_types=["document"])
     dp.register_message_handler(load_preview, state=ItemState.pre_view, content_types=["document"])
-    # dp.register_message_handler(apply,
-    #                             lambda message: message.text == "Применить" and message.from_user.id == ID,
-    #                             state=UserState.current_state)
+    dp.register_message_handler(get_stat,
+                                lambda message: message.text == "Статистика" and message.from_user.id == ID,
+                                state=UserState.current_state)
+    dp.register_message_handler(get_state_with_date, state=CheckStat.category)
     dp.register_message_handler(add_file_to_file ,lambda message: message.text == "/add_files" and message.from_user.id == ID,
                                 state=UserState.current_state)
     dp.register_message_handler(add_file_to_file_cach, state=Items.file, content_types=["document"])
