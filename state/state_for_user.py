@@ -5,4 +5,5 @@ from aiogram.dispatcher.filters.state import State,StatesGroup
 class UserState(StatesGroup):
     current_state = State()
 
-
+class UsertoState(StatesGroup):
+    current_state = State()

@@ -2,6 +2,7 @@ from bot_logger.BotLogger import logger
 import json
 import os
 import platform
+import hashlib
 
 
 class Categories:
@@ -71,13 +72,7 @@ class Categories:
 
 
 category_object = Categories("q")
-# print(category_object.dict)
-# print(category_object.add_category("1", ["1 курс","Математика"]))
-# print(category_object.add_item("kontrol`ndaya", ["1 курс","Математика"]))
-# print(category_object.view_category("Математика"))
-# category_object.del_partition(["1 курс"])
-# category_object.apply_changes("q")
-# print(category_object.dict)
+
 
 
 
