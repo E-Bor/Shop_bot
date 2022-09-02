@@ -201,7 +201,7 @@ async def get_state_with_date(message: types.Message, state: FSMContext):
     if len(date) == 2:
         await message.answer(f"""В данном разделе за период |({date[0]}) - ({date[1]})|
 Cовершено покупок: | {database.check_purchases("|".join(old_state["category"]), date[0], date[1])} |
-Новых пользователей за этот период: | {database.check_new_users(date[0], date[1])} |""")
+Новых пользователей: | {database.check_new_users(date[0], date[1])} |""")
         a = old_state["category"].copy()
         await state.finish()
         await UserState.current_state.set()
@@ -209,7 +209,6 @@ Cовершено покупок: | {database.check_purchases("|".join(old_state
         await new_state.update_data(current_state=a)
         await bot.send_message(message.from_user.id,
                                'Для продолжения нажмите кнопку "назад" или вернитесь к выбору категории')
-
     else:
         await message.answer("Дата введена не верно")
 
