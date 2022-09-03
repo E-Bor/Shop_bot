@@ -1,6 +1,9 @@
+import platform
 import sqlite3
 import os
+import subprocess
 import datetime
+import platform
 
 from unicodedata import category
 
@@ -12,7 +15,8 @@ class DatabaseControll:
 
     def __init__(self, db_name: str):
         self.db_name = db_name
-        self.path = os.path.dirname(os.path.abspath(__file__))+"\\" + self.db_name
+        self.path = os.path.dirname(os.path.abspath(__file__))+"\\" + self.db_name if platform.system() == "Windows" \
+            else os.path.dirname(os.path.abspath(__file__))+"/" + self.db_name
 
 # create connection with db that named db_name
     def create_connection(self):
@@ -99,7 +103,18 @@ class DatabaseControll:
         amount = cur.execute(sql_request, ("{}%".format(cat),start,stop)).fetchone()
         return amount[0]
 
+    def backup(self):
+        cur, con = self.create_connection()
+        path = os.path.dirname(os.path.abspath(__file__))+"\\" + "backup.db" if platform.system() == "Windows" \
+            else os.path.dirname(os.path.abspath(__file__))+"/" + "backup.db"
+        backup = sqlite3.connect(str(path))
+        with backup:
+            con.backup(backup, pages=0)
+        backup.close()
+        pass
+
 
 database = DatabaseControll("filesdata.db")
+
 
 # date format "2022-08-22"
