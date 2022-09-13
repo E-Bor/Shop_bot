@@ -15,11 +15,13 @@ import re
 
 ID = None
 
+
 # Functions to check admins
 async def start_administrate(message: types.Message):
     global ID
     ID = message.from_user.id
     await bot.send_message(ID, text="Привет, мой администратор!, нажмите на /start")
+
 
 async def stop_administrate(message: types.Message):
     global ID
@@ -120,18 +122,15 @@ def create_new_file_in_database(dictionary: dict):
     cost = dictionary["new_files_data"][1]+"00"
     dictionary["directory"].append(file_name)
     category = "|".join(dictionary["directory"])
-    # file = f"{file_path}{dictionary['files_name']}"
     file = f"{dictionary['files_name']}"
     telegram_id_file = dictionary["files"]["file_id"]
     pre_view = f"{dictionary['pre_view_name']}"
-    # pre_view = f"{pre_view_path}{dictionary['pre_view_name']}"
     database.add_position(file_name, category, cost, file, telegram_id_file, pre_view)
 
 
 # catch the file pre view
 async  def load_preview(file: types.Message, state: FSMContext):
     pre_view_info = await bot.get_file(file.document.file_id)
-    # print("info about files", pre_view_info)
     await state.update_data(pre_view=dict(pre_view_info))
     await state.update_data(pre_view_name=file.document.file_name)
     urllib.request.urlretrieve(f'https://api.telegram.org/file/bot{TOKEN}/{pre_view_info.file_path}',
@@ -147,8 +146,8 @@ async  def load_preview(file: types.Message, state: FSMContext):
     category_object.apply_changes("q")
 
 
+# a function that attaches a file to an existing category
 async def add_file_to_file(message: types.Message, state: FSMContext):
-    # print("123")
     old_state = await state.get_data()
     a = old_state["current_state"].copy()
     await state.finish()
@@ -156,20 +155,16 @@ async def add_file_to_file(message: types.Message, state: FSMContext):
     new_state = Dispatcher.get_current().current_state()
     await new_state.update_data(file=a)
     await message.answer("Скиньте файл который нужно прикрепить к данному товару")
-    # print(new_state:= await state.get_state())
 
 
 # add new file for file to sell
 async def add_file_to_file_cach (file: types.Message, state: FSMContext):
     pre_view_info = await bot.get_file(file.document.file_id)
     data = await state.get_data()
-    # print("hi")
-    # print(data["file"])
     urllib.request.urlretrieve(f'https://api.telegram.org/file/bot{TOKEN}/{pre_view_info.file_path}',
                                f'{file_path}{file.document.file_name}')
     path = "|".join(data["file"])
     name = file.document.file_name
-    # print(name)
     database.add_position("0", path, "0", str(name), pre_view_info["file_id"], "0")
     await state.finish()
     new_state = data["file"]
@@ -190,6 +185,7 @@ async def get_stat(message: types.Message, state: FSMContext):
     await new_state.update_data(category=a)
 
 
+# getting purchase statistics
 async def get_state_with_date(message: types.Message, state: FSMContext):
     old_state = await state.get_data()
     date = list()
@@ -214,10 +210,9 @@ Cовершено покупок: | {database.check_purchases("|".join(old_state
 
 
 
-
-
-# registers messages
 def register_handler_admins(dp : Dispatcher):
+    """A function that wraps the functionality of replies to messages in telegram handlers"""
+
     dp.register_message_handler(start_administrate, commands="start_administrate", is_chat_admin=True)
     dp.register_message_handler(stop_administrate, commands="stop_administrate", is_chat_admin=True)
     dp.register_message_handler(command_start, lambda message: message.text == "/start" and message.from_user.id == ID)
@@ -237,6 +232,6 @@ def register_handler_admins(dp : Dispatcher):
                                 lambda message: message.text == "Статистика" and message.from_user.id == ID,
                                 state=UserState.current_state)
     dp.register_message_handler(get_state_with_date, state=CheckStat.category)
-    dp.register_message_handler(add_file_to_file ,lambda message: message.text == "/add_files" and message.from_user.id == ID,
+    dp.register_message_handler(add_file_to_file, lambda message: message.text == "/add_files" and message.from_user.id == ID,
                                 state=UserState.current_state)
     dp.register_message_handler(add_file_to_file_cach, state=Items.file, content_types=["document"])

@@ -2,7 +2,7 @@ from bot_logger.BotLogger import logger
 import json
 import os
 import platform
-import hashlib
+
 
 
 class Categories:
@@ -27,7 +27,6 @@ class Categories:
             if dic[i] == "Pay":
                 return dic
             dic = dic[i]
-
         return list(dic.keys())
 
     # add category
